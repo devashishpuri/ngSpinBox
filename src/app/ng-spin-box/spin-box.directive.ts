@@ -42,7 +42,9 @@ export class SpinBoxDirective {
     // Add Up/Down Buttons for UserInteraction
     const buttonUp = this.renderer.createElement('button');
     this.renderer.appendChild(wrapper, buttonUp);
+    this.renderer.addClass(buttonUp, 'ng-spin-box-btn-up');
     this.renderer.listen(buttonUp, 'click', (e: Event) => { this._clickSpinBoxButton(e, true); });
+    this.renderer.setAttribute(buttonUp, 'tabIndex', '-1');
     this.renderer.setAttribute(buttonUp, 'style', `
       position: absolute;
       top: 0;
@@ -53,7 +55,9 @@ export class SpinBoxDirective {
     // Add Up/Down Buttons for UserInteraction
     const buttonDown = this.renderer.createElement('button');
     this.renderer.appendChild(wrapper, buttonDown);
+    this.renderer.addClass(buttonDown, 'ng-spin-box-btn-down');
     this.renderer.listen(buttonDown, 'click', (e: Event) => { this._clickSpinBoxButton(e, false); });
+    this.renderer.setAttribute(buttonDown, 'tabIndex', '-1');
     this.renderer.setAttribute(buttonDown, 'style', `
       position: absolute;
       bottom: 0;
@@ -79,10 +83,11 @@ export class SpinBoxDirective {
   private _increaseDecreaseValue(shouldInrease: boolean) {
     let value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
 
+    const precision = +(this.decimal || 0);
     /**
      * Add Decimal logic
      */
-    const multiplier = Math.pow(10, (+this.decimal + 1));
+    const multiplier = Math.pow(10, (precision + 1));
     let decimalValue = value * multiplier;
 
     const step = (+this.step) || 1;
@@ -93,7 +98,7 @@ export class SpinBoxDirective {
       decimalValue -= (step * multiplier);
     }
 
-    value = (decimalValue / multiplier).toFixed(this.decimal);
+    value = (decimalValue / multiplier).toFixed(precision);
 
     if ((+value) >= (+this.min || -Infinity) && (+value) <= (+this.max || Infinity)) {
       if (this.changeByMouse) {
@@ -136,16 +141,16 @@ export class SpinBoxDirective {
     const key = event.key;
     const cursorPosition = (<HTMLInputElement>this.el.nativeElement).selectionStart;
 
-    if (key === 'ArrowUp') {
+    if (key === 'ArrowUp' || key === 'Up') {
       this._increaseDecreaseValue(true);
-    } else if (key === 'ArrowDown') {
+    } else if (key === 'ArrowDown' || key === 'Down') {
       this._increaseDecreaseValue(false);
     }
 
     // Allow special key presses
     if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey ||
       key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Backspace' ||
-      key === 'Delete') {
+      key === 'Delete' || key === 'Tab' || key === 'Left' || key === 'Right') {
       return;
     }
 
