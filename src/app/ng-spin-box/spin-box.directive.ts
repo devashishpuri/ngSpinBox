@@ -1,10 +1,5 @@
-import { Directive, ElementRef, Input, HostListener, HostBinding, Renderer2 } from '@angular/core';
+import { Directive, ElementRef, Input, HostListener, Renderer2, Output, EventEmitter } from '@angular/core';
 
-interface SpinBoxOptions {
-  min: number;
-  max: number;
-  step: number;
-}
 
 @Directive({
   // tslint:disable-next-line
@@ -16,13 +11,18 @@ export class SpinBoxDirective {
   @Input('max') max: number;
   @Input('step') step: number;
   @Input('decimal') decimal: number;
-  @Input('className') className: number;
 
   private _hasFocus = false;
+
+  @Output('changeByMouse') changeByMouse: EventEmitter<string> = new EventEmitter();
 
   constructor(private el: ElementRef, private renderer: Renderer2) {
     console.log('The Reference Element', el);
     this._initView();
+  }
+
+  get _isDisabled(): boolean {
+    return (<HTMLInputElement>this.el.nativeElement).disabled;
   }
 
   private _initView() {
@@ -66,8 +66,10 @@ export class SpinBoxDirective {
   private _clickSpinBoxButton(event: Event, shouldInrease: boolean) {
     event.preventDefault();
     event.stopPropagation();
-    (<HTMLInputElement>this.el.nativeElement).focus();
-    this._increaseDecreaseValue(shouldInrease);
+    if (!this._isDisabled) {
+      (<HTMLInputElement>this.el.nativeElement).focus();
+      this._increaseDecreaseValue(shouldInrease);
+    }
   }
 
   /**
@@ -87,7 +89,7 @@ export class SpinBoxDirective {
     const step = (+this.step) || 1;
 
     if (shouldInrease) {
-      decimalValue += (step *  multiplier);
+      decimalValue += (step * multiplier);
     } else {
       decimalValue -= (step * multiplier);
     }
@@ -95,8 +97,23 @@ export class SpinBoxDirective {
     value = (decimalValue / multiplier).toFixed(this.decimal);
 
     if ((+value) >= (+this.min || -Infinity) && (+value) <= (+this.max || Infinity)) {
+      if (this.changeByMouse) {
+        this.changeByMouse.emit(value);
+      }
       this.renderer.setProperty(this.el.nativeElement, 'value', value);
     }
+
+    // Trigger Input Event
+    let event;
+    try {
+      event = new Event('input', { bubbles: true, cancelable: false });
+    } catch (e) {
+      event = document.createEvent('Event');
+      event.initEvent('input', true, false);
+    }
+
+    // dispatch the event
+    this.el.nativeElement.dispatchEvent(event);
 
   }
 
@@ -109,7 +126,7 @@ export class SpinBoxDirective {
   }
 
   @HostListener('wheel', ['$event']) onMouseWheel(event: WheelEvent) {
-    if (!this._hasFocus) {
+    if (!this._hasFocus || this._isDisabled) {
       return;
     }
     (event.deltaY > 0) ? this._increaseDecreaseValue(false) : this._increaseDecreaseValue(true);
@@ -117,7 +134,7 @@ export class SpinBoxDirective {
 
   @HostListener('keydown', ['$event']) onKeydown(event: KeyboardEvent) {
     const key = event.key;
-    const cursorPosition =  (<HTMLInputElement>this.el.nativeElement).selectionStart;
+    const cursorPosition = (<HTMLInputElement>this.el.nativeElement).selectionStart;
 
     if (key === 'ArrowUp') {
       this._increaseDecreaseValue(true);
@@ -131,11 +148,6 @@ export class SpinBoxDirective {
       key === 'Delete') {
       return;
     }
-
-    // Allow a Decimal sign
-    // if (key === this._getDecimalSeparator()) {
-    //   return;
-    // }
 
     // Allow a minus sign if the value can be negative
     if (key === '-' && cursorPosition === 0 && (this.min && this.min < 0)) {
@@ -153,11 +165,7 @@ export class SpinBoxDirective {
     // }
 
     // Prevent the default action
-    if (event.preventDefault) {
-      event.preventDefault();
-    } else {
-      event.returnValue = false;
-    }
+    event.preventDefault();
 
   }
 

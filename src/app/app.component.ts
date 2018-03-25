@@ -7,4 +7,8 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
+
+  beforeClick(event: any) {
+    console.log('Before Click', event);
+  }
 }
