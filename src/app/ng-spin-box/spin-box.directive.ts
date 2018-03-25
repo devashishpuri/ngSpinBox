@@ -17,7 +17,6 @@ export class SpinBoxDirective {
   @Output('changeByMouse') changeByMouse: EventEmitter<string> = new EventEmitter();
 
   constructor(private el: ElementRef, private renderer: Renderer2) {
-    console.log('The Reference Element', el);
     this._initView();
   }
 
@@ -126,6 +125,7 @@ export class SpinBoxDirective {
   }
 
   @HostListener('wheel', ['$event']) onMouseWheel(event: WheelEvent) {
+    event.preventDefault();
     if (!this._hasFocus || this._isDisabled) {
       return;
     }
