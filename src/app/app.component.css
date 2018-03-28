@@ -1,3 +1,48 @@
-input {
-    padding: 6px;
+* {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+  }
+
+  div.app-container {
+    padding: 32px;
+    margin: auto;
+    max-width: 648px;
+  }
+  
+  h2 {
+    text-align: center;
+  }
+  
+  div.example-container {
+    padding: 16px;
+  }
+  
+  input  {
+    padding: 5px;
+    outline: none;
+  }
+
+  button {
+      background: transparent;
+      outline: none;
+      border: 0;
+  }
+
+  .ng-spin-box-btn-up {
+      top: -2px !important;
+  }
+
+  .ng-spin-box-btn-down {
+    bottom: 2px !important;
 }
+
+  .ng-spin-box-btn-up::before {
+    content: '\25B2';
+    color: #484848;
+    font-size: small;
+  }
+
+  .ng-spin-box-btn-down::before {
+    content: '\25BC';
+    color: #484848;
+    font-size: small;
+  }

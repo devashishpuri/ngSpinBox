@@ -1,7 +1,65 @@
-<div>
-  
-  <div>
-    <input type='tel' ngSpinBox step='0.001' min='0.001' decimal='3' value='90'>
-  </div>
+<div class='app-container'><h2>
+  Ng-Spin-box
+</h2>
 
+<p>
+  Spinbox Directive for Angular 2+ which provides cross-browser functionality of <code>&lt;input type='number'&gt;</code> with in-built supoort for Precision.
+</p>
+
+<h4>
+  Usage
+</h4>
+
+<p>
+  In app.module.ts or custom-module.module.ts
+</p>
+<div class='example-container'>
+  <pre>
+    <code class="language-js">
+      import &#123; NgSpinBoxModule &#125; from 'ng-spin-box';
+    </code>
+  </pre>
+  and
+  <pre>
+    <code class="language-js">
+        imports: [
+          NgSpinBoxModule,
+        ]
+    </code>
+  </pre>
+</div>
+
+<p>
+  In your Template, use as
+</p>
+<div class='example-container'>
+  <pre>
+    <code class="language-html">
+      &lt;div&gt;
+        &lt;input type='tel' ngSpinBox step='0.001' min='0.001' decimal='3'&gt;
+      &lt;/div&gt;
+    </code>
+  </pre>
+</div>
+
+<h4>
+  Classes to customise spin-box
+</h4>
+<div class="example-container">
+   Wrapper Element: 'ng-spin-box-wrapper'<br> 
+   Increment Button: 'ng-spin-box-btn-up'<br>
+   Decrement Button: 'ng-spin-box-btn-down'
+</div>
+
+<h4>
+  Woking Demo
+</h4>
+<div class='example-container'>
+  Example input container<br><br>
+  <div>
+    <input type='tel' ngSpinBox step='0.001' min='0.001' decimal='3'>
+  </div>
+</div>
+
+<br><br><br>
 </div>
