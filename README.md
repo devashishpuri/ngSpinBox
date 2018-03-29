@@ -2,6 +2,10 @@
 
 <h2>Spinbox Directive for Angular 2+.</h2>
 
+## Installation
+
+<h4> npm i ng-spin-box --save </h4>
+
 ## Usage
 
 Import 'NgSpinBoxModule' in App.module.ts/CustomModule.ts
