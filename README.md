@@ -1,6 +1,6 @@
 # NgSpinBox
 
-<h2>Spinbox Directive for Angular 2+.</h2>
+<h2>Spinbox Directive for Angular.</h2>
 
 ## Installation
 
@@ -8,13 +8,13 @@
 
 ## Usage
 
-Import 'NgSpinBoxModule' in App.module.ts/CustomModule.ts
+Import 'NgSpinBoxModule' in app.module.ts / <Custom-Module>.module.ts
 
-Then, Simply use as a directive, wrapped in a container:
+Then, Simply use as a directive, wrapped in a container(Important):
 
 ```html
 <div>
-    <input type='tel' ngSpinBox step='0.001' min='0.001' decimal='3'>
+    <input type='tel' ngSpinBox step='0.01' min='0.01' decimal='2' snapToStep='true'>
 </div>
 ```
 Classes for Wrapper Element, Increment and Decrement Button are:
