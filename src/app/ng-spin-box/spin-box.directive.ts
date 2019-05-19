@@ -11,7 +11,8 @@ export class SpinBoxDirective {
   @Input('max') max: number;
   @Input('step') step: number;
   @Input('decimal') decimal: number;
-  @Input('snapToStep') snapToStep;
+  @Input('snapToStep') snapToStep: boolean;
+  @Input('stepAtCursor') stepAtCursor: boolean;
 
   private _hasFocus = false;
 
@@ -82,17 +83,20 @@ export class SpinBoxDirective {
    * Else Decrease the Value.
    */
   private _increaseDecreaseValue(shouldInrease: boolean) {
-    let value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
+    const value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
 
     const precision = +(this.decimal || 0);
     /**
      * Add Decimal logic
      */
-    const multiplier = Math.pow(10, (precision + 1));
-    const roundingMultiplier = Math.pow(10, (precision - 1));
+    const multiplier = Math.pow(10, (precision + 2));
     let decimalValue = value * multiplier;
 
     const step = (+this.step) || 1;
+
+    // Get Cursor Position
+    const cursorPosition = (<HTMLInputElement>this.el.nativeElement).selectionStart;
+    const decimalPosition = value.toString().indexOf(this._getDecimalSeparator);
 
     // Convert String type values to boolean, to stop the need of Data Binding
     const shouldSnapToStep = typeof this.snapToStep === 'string' ? JSON.parse(this.snapToStep) : this.snapToStep;
@@ -119,13 +123,13 @@ export class SpinBoxDirective {
       }
     }
 
-    value = (decimalValue / multiplier).toFixed(precision);
+    const finalValue = (decimalValue / multiplier).toFixed(precision);
 
     if ((+value) >= (+this.min || -Infinity) && (+value) <= (+this.max || Infinity)) {
       if (this.changeByMouse) {
-        this.changeByMouse.emit(value);
+        this.changeByMouse.emit(finalValue);
       }
-      this.renderer.setProperty(this.el.nativeElement, 'value', value);
+      this.renderer.setProperty(this.el.nativeElement, 'value', finalValue);
     }
 
     // Trigger Input Event
@@ -140,6 +144,10 @@ export class SpinBoxDirective {
     // dispatch the event
     this.el.nativeElement.dispatchEvent(event);
 
+    if (value.toString().indexOf(this._getDecimalSeparator) !== -1) {
+      (<HTMLInputElement>this.el.nativeElement).selectionStart = cursorPosition;
+      (<HTMLInputElement>this.el.nativeElement).selectionEnd = cursorPosition;
+    }
   }
 
   @HostListener('focus') onFocus() {
@@ -163,9 +171,17 @@ export class SpinBoxDirective {
     const cursorPosition = (<HTMLInputElement>this.el.nativeElement).selectionStart;
 
     if (key === 'ArrowUp' || key === 'Up') {
-      this._increaseDecreaseValue(true);
+      if (event.shiftKey) {
+        return;
+      } else {
+        this._increaseDecreaseValue(true);
+      }
     } else if (key === 'ArrowDown' || key === 'Down') {
-      this._increaseDecreaseValue(false);
+      if (event.shiftKey) {
+        return;
+      } else {
+        this._increaseDecreaseValue(false);
+      }
     }
 
     // Allow special key presses
@@ -195,7 +211,7 @@ export class SpinBoxDirective {
 
   }
 
-  private _getDecimalSeparator() {
+  private get _getDecimalSeparator() {
     const number = 1.1;
     return number.toLocaleString().substring(1, 2);
   }
@@ -204,7 +220,7 @@ export class SpinBoxDirective {
     const decimal = (+this.decimal) || 0;
     const refElement = (<HTMLInputElement>this.el.nativeElement);
     const value = refElement.value.substr(0, refElement.selectionStart) + key + refElement.value.substr(refElement.selectionEnd);
-    const regexString = '^\\d+\\' + this._getDecimalSeparator() + '?\\d{0,' + decimal + '}$';
+    const regexString = '^\\d+\\' + this._getDecimalSeparator + '?\\d{0,' + decimal + '}$';
     return new RegExp(regexString, 'g').test(value);
   }
 
