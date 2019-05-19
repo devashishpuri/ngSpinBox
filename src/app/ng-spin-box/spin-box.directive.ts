@@ -11,6 +11,7 @@ export class SpinBoxDirective {
   @Input('max') max: number;
   @Input('step') step: number;
   @Input('decimal') decimal: number;
+  @Input('snapToStep') snapToStep;
 
   private _hasFocus = false;
 
@@ -88,14 +89,34 @@ export class SpinBoxDirective {
      * Add Decimal logic
      */
     const multiplier = Math.pow(10, (precision + 1));
+    const roundingMultiplier = Math.pow(10, (precision - 1));
     let decimalValue = value * multiplier;
 
     const step = (+this.step) || 1;
 
+    // Convert String type values to boolean, to stop the need of Data Binding
+    const shouldSnapToStep = typeof this.snapToStep === 'string' ? JSON.parse(this.snapToStep) : this.snapToStep;
+
     if (shouldInrease) {
-      decimalValue += (step * multiplier);
+      if (shouldSnapToStep) {
+        let decimalVal = Math.round((value * multiplier) / (step * multiplier)) * (step * multiplier);
+        if (decimalVal > (value * multiplier)) {
+          decimalVal -= (step * multiplier);
+        }
+        decimalValue = (decimalVal) + (step * multiplier);
+      } else {
+        decimalValue += (step * multiplier);
+      }
     } else {
-      decimalValue -= (step * multiplier);
+      if (shouldSnapToStep) {
+        let decimalVal = Math.round((value * multiplier) / (step * multiplier)) * (step * multiplier);
+        if (decimalVal < (value * multiplier)) {
+          decimalVal += (step * multiplier);
+        }
+        decimalValue = (decimalVal) - (step * multiplier);
+      } else {
+        decimalValue -= (step * multiplier);
+      }
     }
 
     value = (decimalValue / multiplier).toFixed(precision);
@@ -148,7 +169,7 @@ export class SpinBoxDirective {
     }
 
     // Allow special key presses
-    if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey ||
+    if (event.ctrlKey || event.metaKey ||
       key === 'ArrowLeft' || key === 'ArrowRight' || key === 'Backspace' ||
       key === 'Delete' || key === 'Tab' || key === 'Left' || key === 'Right') {
       return;
