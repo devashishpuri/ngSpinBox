@@ -121,6 +121,41 @@
           }
         }
       }
+    },
+    "ng-spin-box": {
+      "root": "projects/ng-spin-box",
+      "sourceRoot": "projects/ng-spin-box/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/ng-spin-box/tsconfig.lib.json",
+            "project": "projects/ng-spin-box/ng-package.json"
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/ng-spin-box/src/test.ts",
+            "tsConfig": "projects/ng-spin-box/tsconfig.spec.json",
+            "karmaConfig": "projects/ng-spin-box/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/ng-spin-box/tsconfig.lib.json",
+              "projects/ng-spin-box/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "ng-spin-box-lib"

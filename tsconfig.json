@@ -16,6 +16,14 @@
     "lib": [
       "es2017",
       "dom"
-    ]
+    ],
+    "paths": {
+      "ng-spin-box": [
+        "dist/ng-spin-box"
+      ],
+      "ng-spin-box/*": [
+        "dist/ng-spin-box/*"
+      ]
+    }
   }
 }

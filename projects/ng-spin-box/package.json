@@ -1,0 +1,27 @@
+{
+  "name": "ng-spin-box",
+  "version": "0.1.3",
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "spinbox",
+    "ngx-spinbox",
+    "ng-spinbox",
+    "ngspinbox",
+    "ngxspinbox",
+    "number",
+    "input",
+    "inputnumber"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devashishpuri/ngSpinBox"
+  },
+  "author": "Devashish Puri",
+  "homepage": "https://devashishpuri.github.io/ngSpinBox/",
+  "private": false,
+  "peerDependencies": {
+    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
+    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+  }
+}
