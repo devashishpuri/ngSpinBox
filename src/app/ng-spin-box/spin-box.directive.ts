@@ -15,6 +15,7 @@ export class SpinBoxDirective {
   @Input('stepAtCursor') stepAtCursor: boolean;
 
   private _hasFocus = false;
+  valueToBeSet: number = 0;
 
   @Output('changeByMouse') changeByMouse: EventEmitter<string> = new EventEmitter();
 
@@ -125,12 +126,18 @@ export class SpinBoxDirective {
 
     const finalValue = (decimalValue / multiplier).toFixed(precision);
 
+// If input value is entered out of bounds, then upon scrolling it, it jumps to a value within bounds.
     if ((+finalValue) >= (+this.min || -Infinity) && (+finalValue) <= (+this.max || Infinity)) {
-      if (this.changeByMouse) {
+      this.valueToBeSet = +finalValue;
+    } else if ((+finalValue) < (+this.min || -Infinity)) {
+      this.valueToBeSet = this.min;
+    } else if ((+finalValue) > (+this.max || Infinity)) {
+      this.valueToBeSet = this.max;
+    }
+     if (this.changeByMouse) {
         this.changeByMouse.emit(finalValue);
       }
-      this.renderer.setProperty(this.el.nativeElement, 'value', finalValue);
-    }
+      this.renderer.setProperty(this.el.nativeElement, 'value', this.valueToBeSet);
 
     // Trigger Input Event
     let event;
