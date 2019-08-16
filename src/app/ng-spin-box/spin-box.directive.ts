@@ -125,7 +125,7 @@ export class SpinBoxDirective {
 
     const finalValue = (decimalValue / multiplier).toFixed(precision);
 
-    if ((+value) >= (+this.min || -Infinity) && (+value) <= (+this.max || Infinity)) {
+    if ((+finalValue) >= (+this.min || -Infinity) && (+finalValue) <= (+this.max || Infinity)) {
       if (this.changeByMouse) {
         this.changeByMouse.emit(finalValue);
       }
