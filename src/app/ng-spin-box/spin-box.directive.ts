@@ -12,7 +12,7 @@ export class SpinBoxDirective {
   @Input('step') step: number;
   @Input('decimal') decimal: number;
   @Input('snapToStep') snapToStep: boolean;
-  @Input('stepAtCursor') stepAtCursor: boolean;
+  @Input('stepAtCursor') stepAtCursor = true;
 
   private _hasFocus = false;
   valueToBeSet = 0;
@@ -84,7 +84,8 @@ export class SpinBoxDirective {
    * Else Decrease the Value.
    */
   private _increaseDecreaseValue(shouldInrease: boolean) {
-    const value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
+    const valueStr = (<HTMLInputElement>this.el.nativeElement).value;
+    const value: number | string = +(valueStr || 0);
 
     const precision = +(this.decimal || 0);
     /**
@@ -98,36 +99,48 @@ export class SpinBoxDirective {
 
     // Get Cursor Position
     const cursorPosition = (<HTMLInputElement>this.el.nativeElement).selectionStart;
-    const decimalPosition = value.toString().indexOf(this._getDecimalSeparator);
+    const decimalPosition = valueStr.indexOf(this._getDecimalSeparator);
+    const cursorFactor = (cursorPosition - decimalPosition);
 
     // Convert String type values to boolean, to stop the need of Data Binding
     const shouldSnapToStep = typeof this.snapToStep === 'string' ? JSON.parse(this.snapToStep) : this.snapToStep;
 
     if (shouldInrease) {
-      if (shouldSnapToStep) {
-        let decimalVal = Math.round((decimalValue) / (step * multiplier)) * (step * multiplier);
-        if (decimalVal > (decimalValue)) {
-          decimalVal -= (step * multiplier);
-        }
-        decimalValue = (decimalVal) + (step * multiplier);
+      if (this.stepAtCursor && (cursorPosition <= valueStr.length - 2)) {
+        const stepMultiplier = Math.pow(10, (precision + 2) - cursorFactor);
+        decimalValue += (1 * stepMultiplier);
       } else {
-        decimalValue += (step * multiplier);
+        if (shouldSnapToStep) {
+          let decimalVal = Math.round((decimalValue) / (step * multiplier)) * (step * multiplier);
+          if (decimalVal > (decimalValue)) {
+            decimalVal -= (step * multiplier);
+          }
+          decimalValue = (decimalVal) + (step * multiplier);
+        } else {
+          decimalValue += (step * multiplier);
+        }
       }
     } else {
-      if (shouldSnapToStep) {
-        let decimalVal = Math.round((decimalValue) / (step * multiplier)) * (step * multiplier);
-        if (decimalVal < (decimalValue)) {
-          decimalVal += (step * multiplier);
-        }
-        decimalValue = (decimalVal) - (step * multiplier);
+      // if (this.stepAtCursor && (cursorPosition > decimalPosition && cursorPosition <= valueStr.length - 2)) {
+      if (this.stepAtCursor && (cursorPosition <= valueStr.length - 2)) {
+        const stepMultiplier = Math.pow(10, (precision + 2) - cursorFactor);
+        decimalValue -= (1 * stepMultiplier);
       } else {
-        decimalValue -= (step * multiplier);
+        if (shouldSnapToStep) {
+          let decimalVal = Math.round((decimalValue) / (step * multiplier)) * (step * multiplier);
+          if (decimalVal < (decimalValue)) {
+            decimalVal += (step * multiplier);
+          }
+          decimalValue = (decimalVal) - (step * multiplier);
+        } else {
+          decimalValue -= (step * multiplier);
+        }
       }
     }
 
     const finalValue = (decimalValue / multiplier).toFixed(precision);
 
-// If input value is entered out of bounds, then upon scrolling it, it jumps to a value within bounds.
+    // If input value is entered out of bounds, then upon scrolling it, it jumps to a value within bounds.
     if ((+finalValue) >= (+this.min || -Infinity) && (+finalValue) <= (+this.max || Infinity)) {
       this.valueToBeSet = +finalValue;
     } else if ((+finalValue) < (+this.min || -Infinity)) {
@@ -135,10 +148,10 @@ export class SpinBoxDirective {
     } else if ((+finalValue) > (+this.max || Infinity)) {
       this.valueToBeSet = this.max;
     }
-     if (this.changeByMouse) {
-        this.changeByMouse.emit(finalValue);
-      }
-      this.renderer.setProperty(this.el.nativeElement, 'value', this.valueToBeSet);
+    if (this.changeByMouse) {
+      this.changeByMouse.emit(finalValue);
+    }
+    this.renderer.setProperty(this.el.nativeElement, 'value', this.valueToBeSet);
 
     // Trigger Input Event
     let event;
@@ -152,7 +165,7 @@ export class SpinBoxDirective {
     // dispatch the event
     this.el.nativeElement.dispatchEvent(event);
 
-    if (value.toString().indexOf(this._getDecimalSeparator) !== -1) {
+    if (valueStr.indexOf(this._getDecimalSeparator) !== -1) {
       (<HTMLInputElement>this.el.nativeElement).selectionStart = cursorPosition;
       (<HTMLInputElement>this.el.nativeElement).selectionEnd = cursorPosition;
     }
