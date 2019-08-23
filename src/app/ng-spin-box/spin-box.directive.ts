@@ -15,7 +15,7 @@ export class SpinBoxDirective {
   @Input('stepAtCursor') stepAtCursor: boolean;
 
   private _hasFocus = false;
-  valueToBeSet: number = 0;
+  valueToBeSet = 0;
 
   @Output('changeByMouse') changeByMouse: EventEmitter<string> = new EventEmitter();
 
@@ -92,6 +92,7 @@ export class SpinBoxDirective {
      */
     const multiplier = Math.pow(10, (precision + 2));
     let decimalValue = value * multiplier;
+    decimalValue = +decimalValue.toFixed(precision + 2);
 
     const step = (+this.step) || 1;
 
@@ -104,8 +105,8 @@ export class SpinBoxDirective {
 
     if (shouldInrease) {
       if (shouldSnapToStep) {
-        let decimalVal = Math.round((value * multiplier) / (step * multiplier)) * (step * multiplier);
-        if (decimalVal > (value * multiplier)) {
+        let decimalVal = Math.round((decimalValue) / (step * multiplier)) * (step * multiplier);
+        if (decimalVal > (decimalValue)) {
           decimalVal -= (step * multiplier);
         }
         decimalValue = (decimalVal) + (step * multiplier);
@@ -114,8 +115,8 @@ export class SpinBoxDirective {
       }
     } else {
       if (shouldSnapToStep) {
-        let decimalVal = Math.round((value * multiplier) / (step * multiplier)) * (step * multiplier);
-        if (decimalVal < (value * multiplier)) {
+        let decimalVal = Math.round((decimalValue) / (step * multiplier)) * (step * multiplier);
+        if (decimalVal < (decimalValue)) {
           decimalVal += (step * multiplier);
         }
         decimalValue = (decimalVal) - (step * multiplier);
