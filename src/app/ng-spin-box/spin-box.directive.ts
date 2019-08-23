@@ -164,6 +164,15 @@ export class SpinBoxDirective {
 
   @HostListener('blur') onBlur() {
     this._hasFocus = false;
+    // On blur, if the entered values is out of bounds, it should jump within bounds
+    const value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
+    let shouldInrease = false;
+    if (value > this.max) {
+      this._increaseDecreaseValue(shouldInrease);
+    } else if (value < this.min) {
+      shouldInrease = true;
+      this._increaseDecreaseValue(shouldInrease);
+    }
   }
 
   @HostListener('wheel', ['$event']) onMouseWheel(event: WheelEvent) {
