@@ -236,9 +236,10 @@ export class SpinBoxDirective {
     }
 
     // Allow Entry with valid Precision
-    if (this._checkPrecision(key)) {
+    if (this._checkValidity(key)) {
       return;
     }
+
 
     // Allow digits
     // if ((/[0-9]/g).test(key)) {
@@ -250,17 +251,25 @@ export class SpinBoxDirective {
 
   }
 
+  // This will prevent input when resulted value is greater than max value.
+  private _checkBounds(value: string) {
+    if (parseFloat(value) > this.max) {
+      return false;
+    }
+    return true;
+  }
+
   private get _getDecimalSeparator() {
     const number = 1.1;
     return number.toLocaleString().substring(1, 2);
   }
 
-  private _checkPrecision(key: string) {
+  private _checkValidity(key: string) {
     const decimal = (+this.decimal) || 0;
     const refElement = (<HTMLInputElement>this.el.nativeElement);
     const value = refElement.value.substr(0, refElement.selectionStart) + key + refElement.value.substr(refElement.selectionEnd);
     const regexString = '^\\d+\\' + this._getDecimalSeparator + '?\\d{0,' + decimal + '}$';
-    return new RegExp(regexString, 'g').test(value);
+    return new RegExp(regexString, 'g').test(value) && this._checkBounds(value) ;
   }
 
 }
