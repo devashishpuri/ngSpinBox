@@ -12,7 +12,8 @@ export class SpinBoxDirective {
   @Input('step') step: number;
   @Input('decimal') decimal: number;
   @Input('snapToStep') snapToStep: boolean;
-  @Input('stepAtCursor') stepAtCursor = true;
+  @Input('stepAtCursor') stepAtCursor: boolean;
+  @Input('setLimitOnBlur') setLimitOnBlur: boolean;
 
   private _hasFocus = false;
   valueToBeSet = 0;
@@ -151,7 +152,10 @@ export class SpinBoxDirective {
     if (this.changeByMouse) {
       this.changeByMouse.emit(finalValue);
     }
-    this.renderer.setProperty(this.el.nativeElement, 'value', this.valueToBeSet);
+
+    // Value to be set needs to be string
+    const valueToBeSetStr = this.valueToBeSet.toFixed(precision);
+    this.renderer.setProperty(this.el.nativeElement, 'value', valueToBeSetStr);
 
     // Trigger Input Event
     let event;
@@ -176,15 +180,18 @@ export class SpinBoxDirective {
   }
 
   @HostListener('blur') onBlur() {
-    this._hasFocus = false;
-    // On blur, if the entered values is out of bounds, it should jump within bounds
-    const value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
-    let shouldInrease = false;
-    if (value > this.max) {
-      this._increaseDecreaseValue(shouldInrease);
-    } else if (value < this.min) {
-      shouldInrease = true;
-      this._increaseDecreaseValue(shouldInrease);
+    const setLimitOnBlur = typeof this.setLimitOnBlur === 'string' ? JSON.parse(this.setLimitOnBlur) : this.setLimitOnBlur;
+    if (setLimitOnBlur) {
+      this._hasFocus = false;
+      // On blur, if the entered values is out of bounds, it should jump within bounds
+      const value: number | string = +((<HTMLInputElement>this.el.nativeElement).value || 0);
+      let shouldInrease = false;
+      if (value > this.max) {
+        this._increaseDecreaseValue(shouldInrease);
+      } else if (value < this.min) {
+        shouldInrease = true;
+        this._increaseDecreaseValue(shouldInrease);
+      }
     }
   }
 
@@ -199,6 +206,8 @@ export class SpinBoxDirective {
   @HostListener('keydown', ['$event']) onKeydown(event: KeyboardEvent) {
     const key = event.key;
     const cursorPosition = (<HTMLInputElement>this.el.nativeElement).selectionStart;
+
+    // console.log('The Event triggered', key, event);
 
     if (key === 'ArrowUp' || key === 'Up') {
       if (event.shiftKey) {
