@@ -154,7 +154,7 @@ export class SpinBoxDirective {
     }
 
     // Value to be set needs to be string
-    const valueToBeSetStr = this.valueToBeSet.toFixed(precision);
+    const valueToBeSetStr = (+this.valueToBeSet).toFixed(precision);
     this.renderer.setProperty(this.el.nativeElement, 'value', valueToBeSetStr);
 
     // Trigger Input Event
